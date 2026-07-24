@@ -122,6 +122,11 @@ const OLSKStaticExportCopyBuiltAssets = function () {
 	fs.cpSync(path.join(kRootDirectory, 'os-app'), kOutputDirectory, {
 		recursive: true,
 	});
+
+	// Without this, GitHub Pages treats folders like `_shared` and
+	// `__compiled` as Jekyll-reserved and silently excludes them from
+	// serving, 404ing every asset underneath.
+	fs.writeFileSync(path.join(kOutputDirectory, '.nojekyll'), '');
 };
 
 const OLSKStaticExportMain = async function () {
@@ -140,7 +145,11 @@ const OLSKStaticExportMain = async function () {
 
 	const server = spawn('npm', ['start'], {
 		cwd: kRootDirectory,
-		env: Object.assign({}, process.env, { PORT: kPort }),
+		// NODE_ENV=production disables the dev-only livereload script
+		// (OLSKExpress/main.js), which would otherwise get baked into
+		// every crawled page and trip mixed-content blocking once served
+		// over HTTPS.
+		env: Object.assign({}, process.env, { PORT: kPort, NODE_ENV: 'production' }),
 		stdio: 'inherit',
 		detached: true,
 	});
