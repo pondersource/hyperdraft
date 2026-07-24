@@ -9,7 +9,9 @@
     "test": "olsk-spec",
 
     "build": "olsk-rollup",
-    "watch": "olsk-rollup-watch"
+    "watch": "olsk-rollup-watch",
+
+    "static-export": "node ./static-export.js"
   },
   "dependencies": {
     "OLSKPithVitrine": "olsk/OLSKPithVitrine",
@@ -33,5 +35,8 @@
   "devDependencies": {
     "OLSKPithToolchain": "olsk/OLSKPithToolchain",
     "OLSKRollupScaffold": "olsk/OLSKRollupScaffold"
+  },
+  "overrides": {
+    "magic-string": "^0.25.0"
   }
 }
