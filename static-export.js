@@ -118,10 +118,61 @@ const OLSKStaticExportWaitForServer = async function () {
 	throw new Error('Server did not become ready in time');
 };
 
-const OLSKStaticExportCopyBuiltAssets = function () {
-	fs.cpSync(path.join(kRootDirectory, 'os-app'), kOutputDirectory, {
-		recursive: true,
-	});
+const OLSKStaticExportFindRollupModuleDirectories = function () {
+	const moduleDirectories = [];
+
+	(function walk(directory) {
+		for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+			if (entry.name.startsWith('__') || entry.name === 'node_modules') {
+				continue;
+			}
+
+			const fullPath = path.join(directory, entry.name);
+
+			if (entry.isDirectory()) {
+				walk(fullPath);
+				continue;
+			}
+
+			if (entry.name === 'rollup-start.js') {
+				moduleDirectories.push(directory);
+			}
+		}
+	})(path.join(kRootDirectory, 'os-app'));
+
+	return moduleDirectories;
+};
+
+const OLSKStaticExportCopyBuiltAssets = async function () {
+	// olsk-rollup has been observed to log "created ... __compiled/..." and
+	// exit for its last-built module before that module's output is fully
+	// flushed to disk, so a copy taken immediately after `npm run build`
+	// can silently miss it. Retry a few times before giving up loudly —
+	// better to fail the deploy than ship a page missing its script/style.
+	for (let attempt = 1; attempt <= 5; attempt++) {
+		fs.rmSync(kOutputDirectory, { recursive: true, force: true });
+		fs.cpSync(path.join(kRootDirectory, 'os-app'), kOutputDirectory, {
+			recursive: true,
+		});
+
+		const missing = OLSKStaticExportFindRollupModuleDirectories().filter(function (moduleDirectory) {
+			const relativePath = path.relative(path.join(kRootDirectory, 'os-app'), moduleDirectory);
+			return !fs.existsSync(path.join(kOutputDirectory, relativePath, '__compiled'));
+		});
+
+		if (!missing.length) {
+			break;
+		}
+
+		if (attempt === 5) {
+			throw new Error(`__compiled output missing after copy for: ${ missing.join(', ') }`);
+		}
+
+		console.warn(`__compiled missing for ${ missing.join(', ') }, retrying copy (attempt ${ attempt })`);
+		await new Promise(function (resolve) {
+			setTimeout(resolve, 1000);
+		});
+	}
 
 	// Without this, GitHub Pages treats folders like `_shared` and
 	// `__compiled` as Jekyll-reserved and silently excludes them from
@@ -130,10 +181,7 @@ const OLSKStaticExportCopyBuiltAssets = function () {
 };
 
 const OLSKStaticExportMain = async function () {
-	fs.rmSync(kOutputDirectory, { recursive: true, force: true });
-	fs.mkdirSync(kOutputDirectory, { recursive: true });
-
-	OLSKStaticExportCopyBuiltAssets();
+	await OLSKStaticExportCopyBuiltAssets();
 
 	const urls = Array.from(OLSKStaticExportDiscoverRoutes().reduce(function (coll, route) {
 		OLSKStaticExportURLsForRoute(route).forEach(function (url) {
