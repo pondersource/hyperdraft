@@ -5,12 +5,17 @@ on: [push, pull_request]
 jobs:
   test-logic-and-interface:
     runs-on: ubuntu-latest
+    env:
+      # A nested dependency pulls in an old @playwright/test whose
+      # postinstall otherwise always tries (and, on this pinned old
+      # version, fails/hangs) to download its own Chromium build.
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Configure Node.js
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
-        node-version: '14.x'
+        node-version: '20.x'
     - name: Install dependencies
       run: npm run setup
     - name: Build project
