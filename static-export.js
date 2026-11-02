@@ -135,7 +135,10 @@ const OLSKStaticExportFindRollupModuleDirectories = function () {
 			}
 
 			if (entry.name === 'rollup-start.js') {
+				// The production Rollup config intentionally excludes UI test stubs.
+			if (!fs.readdirSync(directory).some(name => name.startsWith('stub-'))) {
 				moduleDirectories.push(directory);
+			}
 			}
 		}
 	})(path.join(kRootDirectory, 'os-app'));
@@ -178,6 +181,26 @@ const OLSKStaticExportCopyBuiltAssets = async function () {
 	// `__compiled` as Jekyll-reserved and silently excludes them from
 	// serving, 404ing every asset underneath.
 	fs.writeFileSync(path.join(kOutputDirectory, '.nojekyll'), '');
+	fs.writeFileSync(path.join(kOutputDirectory, 'CNAME'), 'hyperdraft.pondersource.com\n');
+};
+
+// Catch incomplete builds before publishing a blank application shell.
+const OLSKStaticExportValidateAssets = function () {
+	const visit = function (directory) {
+		for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+			const file = path.join(directory, entry.name);
+			if (entry.isDirectory()) { visit(file); continue; }
+			if (!entry.name.endsWith('.html')) continue;
+			const html = fs.readFileSync(file, 'utf8');
+			for (const match of html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)=["']([^"']+)["']/g)) {
+				const url = match[1].split(/[?#]/)[0];
+				if (!url || /^(?:[a-z]+:|\/\/)/i.test(url) || !/\.[a-z0-9]+$/i.test(url)) continue;
+				const asset = url.startsWith('/') ? path.join(kOutputDirectory, url) : path.resolve(path.dirname(file), url);
+				if (!fs.existsSync(asset)) throw new Error(`Missing deployed asset ${ url } in ${ file }`);
+			}
+		}
+	};
+	visit(kOutputDirectory);
 };
 
 const OLSKStaticExportMain = async function () {
@@ -218,6 +241,7 @@ const OLSKStaticExportMain = async function () {
 			fs.writeFileSync(destinationPath, body);
 			console.log(`saved ${ urlPath } -> ${ path.relative(kRootDirectory, destinationPath) }`);
 		}
+		OLSKStaticExportValidateAssets();
 	} finally {
 		// `npm start` forks its own child process, so kill the whole group.
 		process.kill(-server.pid, 'SIGTERM');

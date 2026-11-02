@@ -1,3 +1,8 @@
+// Keep setup reproducible: preserve the lockfile and avoid a second npm process.
+if (!require('fs').existsSync('.env')) {
+	require('fs').copyFileSync('.env-sample', '.env');
+}
+
 (function OLSKPostinstallHotfix() {
 	Object.entries(Object.assign(require('OLSKHotfix').OLSKHotfixPatches(process.env.NODE_ENV), {
 		'./node_modules/OLSKAppToolbar/node_modules/OLSKReloadButton/main.svelte': {
@@ -12,8 +17,7 @@
 		}
 		
 		Object.entries(patches).forEach(function ([search, replace]) {
-			require('fs').writeFileSync(path, require('OLSKString').OLSKStringPatch(
-				require('fs').readFileSync(path, 'utf8'), search, replace));
+			require('fs').writeFileSync(path, require('fs').readFileSync(path, 'utf8').replaceAll(search, replace));
 		});
 	});
 })();

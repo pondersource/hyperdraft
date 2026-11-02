@@ -6,15 +6,17 @@ jobs:
   test-logic-and-interface:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Configure Node.js
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
-        node-version: '14.x'
+        node-version: '22.x'
     - name: Install dependencies
-      run: npm run setup
+      run: |
+        git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+        npm ci
     - name: Build project
-      run: npm run build --ci
+      run: OLSK_ROLLUP_SCAFFOLD_CI=1 npm run build
     - name: Test logic
       run: npm run test -- --ci
     - name: Test interface

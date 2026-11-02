@@ -1,23 +1,16 @@
 {
   "scripts": {
     "postinstall": "olsk-bundle tidy && node ./package-postinstall.js",
-    
-    "setup": "npm install --no-save && olsk-bundle",
-
+    "setup": "npm install",
     "start": "olsk-express",
-    
     "test": "olsk-spec",
-
-    "build": "olsk-rollup",
-    "watch": "olsk-rollup-watch",
-
+    "build": "rollup --config rollup-config.js",
+    "watch": "rollup --config rollup-config.js --watch",
     "static-export": "node ./static-export.js"
   },
   "dependencies": {
     "OLSKPithVitrine": "olsk/OLSKPithVitrine",
-
     "OLSKPithGuide": "olsk/OLSKPithGuide",
-
     "OLSKPithApp": "olsk/OLSKPithApp",
     "OLSKCatalog": "olsk/OLSKCatalog",
     "marked": "5.x",
@@ -25,18 +18,40 @@
     "OLSKVersion": "olsk/OLSKVersion",
     "OLSKLocalStorage": "olsk/OLSKLocalStorage",
     "jszip": "latest",
-
     "codemirror": "rosano/CodeMirror#add-distribution",
-
     "OLSKRobots": "olsk/OLSKRobots",
-
-    "OLSKServiceWorker": "olsk/OLSKServiceWorker"
+    "OLSKServiceWorker": "olsk/OLSKServiceWorker",
+    "OLSKString": "github:olsk/OLSKString",
+    "OLSKObject": "github:olsk/OLSKObject",
+    "OLSKAppToolbar": "github:olsk/OLSKAppToolbar",
+    "OLSKApropos": "github:olsk/OLSKApropos",
+    "OLSKBeacon": "github:olsk/OLSKBeacon",
+    "OLSKChain": "github:olsk/OLSKChain",
+    "OLSKCloud": "github:olsk/OLSKCloud",
+    "OLSKDisk": "github:olsk/OLSKDisk",
+    "OLSKInstall": "github:olsk/OLSKInstall",
+    "OLSKInternational": "github:olsk/OLSKInternational",
+    "OLSKLanguageSwitcher": "github:olsk/OLSKLanguageSwitcher",
+    "OLSKModalView": "github:olsk/OLSKModalView",
+    "OLSKPointer": "github:olsk/OLSKPointer",
+    "OLSKRemoteStorage": "github:olsk/OLSKRemoteStorage",
+    "OLSKSpec": "github:olsk/OLSKSpec",
+    "OLSKThrottle": "github:olsk/OLSKThrottle",
+    "OLSKTransport": "github:olsk/OLSKTransport",
+    "OLSKUIAssets": "github:olsk/OLSKUIAssets",
+    "OLSKWebView": "github:olsk/OLSKWebView",
+    "zerodatawrap": "github:0dataapp/0datawrap",
+    "svelte": "^3.59.2",
+    "remotestoragejs": "^2.0.0-beta.10",
+    "ulid": "^2.4.0"
   },
   "devDependencies": {
     "OLSKPithToolchain": "olsk/OLSKPithToolchain",
     "OLSKRollupScaffold": "olsk/OLSKRollupScaffold"
   },
   "overrides": {
-    "magic-string": "^0.25.0"
+    "magic-string": "^0.25.0",
+    "svelte": "$svelte",
+    "svelte-preprocess": "^5.1.4"
   }
 }

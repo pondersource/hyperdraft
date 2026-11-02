@@ -83,3 +83,11 @@ The code is released under a [Hippocratic License](https://firstdonoharm.dev), m
 ## Questions
 
 Feel free to reach out on [Mastodon](https://rosano.ca/mastodon) or [Bluesky](https://rosano.ca/bluesky).
+
+## Ponder Source deployment
+
+The Ponder Source fork is served at https://hyperdraft.pondersource.com with
+GitHub Pages. Use Node.js 22 and `npm ci` for the locked dependency tree.
+`npm run build` fails on unresolved imports; `npm run static-export` checks
+local asset references before publishing. Production builds exclude UI test
+stubs; set `OLSK_ROLLUP_SCAFFOLD_CI=1` when building for interface tests.

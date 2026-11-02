@@ -1,4 +1,4 @@
-export default require('OLSKRollupScaffold').OLSKRollupScaffoldScanStart(__dirname, {
+const configurations = require('OLSKRollupScaffold').OLSKRollupScaffoldScanStart(__dirname, {
 	OLSKRollupPluginSwapTokens: Object.assign(require('OLSKUIAssets').OLSKUIAssetsSwapTokens(), {
 		OLSK_VERSION_LIMIT_SWAP_TOKEN: process.env.OLSK_VERSION_LIMIT,
 
@@ -12,4 +12,13 @@ export default require('OLSKRollupScaffold').OLSKRollupScaffoldScanStart(__dirna
 
 		ROCO_SHARED_PROJECT_ID_SWAP_TOKEN: process.env.ROCO_SHARED_PROJECT_ID,
 	}),
+});
+
+module.exports = configurations.map(function (config) {
+	return Object.assign({}, config, {
+		onwarn (warning, handler) {
+			if (warning.code === 'UNRESOLVED_IMPORT') throw new Error(warning.message);
+			config.onwarn(warning, handler);
+		},
+	});
 });
