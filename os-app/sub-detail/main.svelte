@@ -67,6 +67,7 @@ const mod = {
 	// VALUE
 
 	_ValueHeaderTokens: [],
+	_ValuePublicURL: null,
 
 	_ValueEditorPostInitializeQueue: [],
 
@@ -129,10 +130,10 @@ const mod = {
 				LCHRecipeSignature: 'KVCWriteDetailLauncherItemOpenPublicLink',
 				LCHRecipeName: OLSKLocalized('KVCWriteDetailLauncherItemOpenPublicLinkText'),
 				LCHRecipeCallback: function KVCWriteDetailLauncherItemOpenPublicLink () {
-					window.open(KVCWriteDetailPublicURLFor(KVCWriteDetailItem));
+					window.open(mod._ValuePublicURL);
 				},
 				LCHRecipeIsExcluded () {
-					return !KVCNote.KVCNoteIsMarkedPublic(KVCWriteDetailItem);
+					return !KVCNote.KVCNoteIsMarkedPublic(KVCWriteDetailItem) || !mod._ValuePublicURL;
 				},
 			}, {
 				LCHRecipeSignature: 'KVCWriteDetailLauncherItemSetAsRootPage',
@@ -240,6 +241,19 @@ import _KVCWritePublish from './ui-assets/_KVCWritePublish.svg';
 import _KVCWriteRetract from './ui-assets/_KVCWriteRetract.svg';
 import _OLSKSharedDiscard from '../_shared/__external/OLSKUIAssets/_OLSKSharedDiscard.svg';
 import KVCWriteInput from '../sub-input/main.svelte';
+
+let publicURLRequest = 0;
+async function refreshPublicURL(item, callback) {
+	const request = ++publicURLRequest;
+	mod._ValuePublicURL = null;
+	if (!item) return;
+	const url = await callback(item);
+	if (request === publicURLRequest && item === KVCWriteDetailItem) {
+		mod._ValuePublicURL = url;
+	}
+}
+
+$: refreshPublicURL(KVCWriteDetailConnected && KVCWriteDetailItem && KVCNote.KVCNoteIsMarkedPublic(KVCWriteDetailItem) ? KVCWriteDetailItem : null, KVCWriteDetailPublicURLFor);
 </script>
 <svelte:window on:keydown={ mod.InterfaceWindowDidKeydown }/>
 
@@ -273,7 +287,9 @@ import KVCWriteInput from '../sub-input/main.svelte';
 			{/if}
 
 			{#if KVCNote.KVCNoteIsMarkedPublic(KVCWriteDetailItem) }
-				<a class="KVCWriteDetailToolbarPublicLink" href={ KVCWriteDetailPublicURLFor(KVCWriteDetailItem) } target="_blank">{ OLSKLocalized('KVCWriteDetailToolbarPublicLinkText') }</a>
+				{#if mod._ValuePublicURL}
+					<a class="KVCWriteDetailToolbarPublicLink" href={ mod._ValuePublicURL } target="_blank">{ OLSKLocalized('KVCWriteDetailToolbarPublicLinkText') }</a>
+				{/if}
 					
 				<button class="KVCWriteDetailToolbarRetractButton OLSKDecorButtonNoStyle OLSKDecorTappable OLSKToolbarButton" title={ OLSKLocalized('KVCWriteDetailToolbarRetractButtonText') } on:click={ KVCWriteDetailDispatchRetract }>
 					<div class="KVCWriteDetailToolbarRetractButtonImage">{@html _KVCWriteRetract }</div>

@@ -7,6 +7,10 @@ describe('KVCWrite_Catalog', function () {
 	});
 
 	context('create', function test_create () {
+
+		before(function () {
+			return browser.fill('.OLSKNarrowFilterField', 'No matching notes');
+		});
 		
 		before(function () {
 			return browser.pressButton('.KVCWriteCreateButton');
@@ -14,6 +18,11 @@ describe('KVCWrite_Catalog', function () {
 
 		it('adds item', function () {
 			browser.assert.elements('.KVCWriteListItem', 1);
+		});
+
+		it('clears the filter and opens the new note', function () {
+			browser.assert.input('.OLSKNarrowFilterField', '');
+			browser.assert.elements('.KVCWriteDetail', 1);
 		});
 	
 	});

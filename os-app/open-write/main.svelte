@@ -124,13 +124,13 @@ const mod = {
 			outputData.push({
 				LCHRecipeSignature: 'KVCWriteLauncherItemConfigureCustomDomain',
 				LCHRecipeName: OLSKLocalized('KVCWriteLauncherItemConfigureCustomDomainText'),
-				LCHRecipeCallback: function KVCWriteLauncherItemConfigureCustomDomain () {
+				LCHRecipeCallback: async function KVCWriteLauncherItemConfigureCustomDomain () {
 					const prompt1 = !OLSK_SPEC_UI() || (OLSK_SPEC_UI() && !count);
 					const prompt2 = !OLSK_SPEC_UI() || (OLSK_SPEC_UI() && count);
 					const confirm3 = !OLSK_SPEC_UI() || (OLSK_SPEC_UI() && count == 2);
 
 					if (prompt1) {
-						if (window.prompt(OLSKLocalized('KVCWriteLauncherItemConfigureCustomDomainPrompt1QuestionText'), mod._ValueZDRWrap.Public.ZDRStoragePermalink(KVCNote.KVCNotePublicRootPagePath())) === null) {
+						if (window.prompt(OLSKLocalized('KVCWriteLauncherItemConfigureCustomDomainPrompt1QuestionText'), await mod._ValueZDRWrap.Public.ZDRStoragePermalink(KVCNote.KVCNotePublicRootPagePath())) === null) {
 							return;
 						};
 					}
@@ -351,6 +351,7 @@ const mod = {
 	// INTERFACE
 
 	InterfaceCreateButtonDidClick () {
+		mod._OLSKCatalog.modPublic.OLSKCatalogFilterWithNoThrottle('');
 		mod.ControlNoteCreate();
 	},
 
@@ -507,9 +508,9 @@ const mod = {
 
 		const options = {
 			KVCOptionIsRoot: mod.DataSetting('KVCSettingPublicRootPageID') === inputData.KVCNoteID,
-			KVCOptionRootURL: mod._ValueZDRWrap.Public.ZDRStoragePermalink('index.html'),
+			KVCOptionRootURL: await mod._ValueZDRWrap.Public.ZDRStoragePermalink('index.html'),
 			KVCOptionBacklinks: KVCWriteLogic.KVCWriteBacklinksMap(mod._OLSKCatalog.modPublic._OLSKCatalogDataItemsAll().filter(KVCNote.KVCNoteIsMarkedPublic).concat(inputData))[KVCTemplate.KVCTemplatePlaintextTitle(inputData.KVCNoteBody)],
-			_KVCOptionPublicBaseURL: mod._ValueZDRWrap.Public.ZDRStoragePermalink('/'),
+			_KVCOptionPublicBaseURL: await mod._ValueZDRWrap.Public.ZDRStoragePermalink('/'),
 			_KVCOptionObject: inputData,
 		};
 
@@ -517,7 +518,7 @@ const mod = {
 
 		const updated = await mod._ValueZDRWrap.App.KVCNote.KVCNotePublicFilesUpload(await mod._ValueZDRWrap.App.KVCNote.KVCNoteMarkPublic(inputData), mod.TestPublishContent = KVCTemplate.KVCView({
 			KVCViewSource: inputData.KVCNoteBody,
-			KVCViewPermalinkMap: mod._ValueZDRWrap.App.KVCNote.KVCNotePermalinkMap(mod._OLSKCatalog.modPublic._OLSKCatalogDataItemsAll(), mod.DataSetting('KVCSettingPublicRootPageID') || ''),
+			KVCViewPermalinkMap: await mod._ValueZDRWrap.App.KVCNote.KVCNotePermalinkMap(mod._OLSKCatalog.modPublic._OLSKCatalogDataItemsAll(), mod.DataSetting('KVCSettingPublicRootPageID') || ''),
 			KVCViewTemplate: mod.DataSetting('KVCSettingCustomTemplate') || KVCTemplate.KVCTemplateViewDefault(OLSKLocalized),
 			KVCViewTemplateOptions: options,
 		}), options.KVCOptionIsRoot);
@@ -738,9 +739,9 @@ const mod = {
 		});
 	},
 
-	KVCWriteDetailPublicURLFor (inputData) {
+	async KVCWriteDetailPublicURLFor (inputData) {
 		if (mod.DataSetting('KVCSettingCustomDomainBaseURL')) {
-			return KVCWriteLogic.KVCWriteCustomDomainBaseURLFunction(mod._ValueZDRWrap.Public.ZDRStoragePermalink(KVCNote.KVCNotePublicRootPagePath()), KVCNote.KVCNotePublicRootPagePath())(mod._ValueZDRWrap.Public.ZDRStoragePermalink(KVCNote.KVCNotePublicPath(inputData, mod.DataSetting('KVCSettingPublicRootPageID') === inputData.KVCNoteID)), mod.DataSetting('KVCSettingCustomDomainBaseURL'));
+			return KVCWriteLogic.KVCWriteCustomDomainBaseURLFunction(await mod._ValueZDRWrap.Public.ZDRStoragePermalink(KVCNote.KVCNotePublicRootPagePath()), KVCNote.KVCNotePublicRootPagePath())(await mod._ValueZDRWrap.Public.ZDRStoragePermalink(KVCNote.KVCNotePublicPath(inputData, mod.DataSetting('KVCSettingPublicRootPageID') === inputData.KVCNoteID)), mod.DataSetting('KVCSettingCustomDomainBaseURL'));
 		}
 		
 		if (OLSK_SPEC_UI() && mod._ValueCloudIdentity) {

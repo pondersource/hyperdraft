@@ -201,7 +201,7 @@ describe('KVCWriteDetail_Misc', function () {
 			browser.assert.attribute(KVCWriteDetailToolbarPublicLink, 'target', '_blank');
 		});
 
-		it('sets href to KVCWriteDetailPublicURLFor', function () {
+		it('sets href to the resolved KVCWriteDetailPublicURLFor', function () {
 			browser.assert.attribute(KVCWriteDetailToolbarPublicLink, 'href', '[public]/bravo');
 		});
 
