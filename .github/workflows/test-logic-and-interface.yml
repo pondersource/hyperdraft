@@ -21,3 +21,5 @@ jobs:
       run: npm run test -- --ci
     - name: Test interface
       run: npx start-server-and-test start 3000 'olsk-spec-ui --ci'
+      env:
+        NODE_OPTIONS: --dns-result-order=ipv4first

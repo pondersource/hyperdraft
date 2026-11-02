@@ -98,12 +98,13 @@ describe('KVCWriteDetail_Misc', function () {
 					browser.assert.text('#TestKVCWriteDetailDispatchConnect', '0');
 				});
 
-				return browser.OLSKConfirm(function () {
-					return browser.pressButton(KVCWriteDetailToolbarConnectButton);
-				}, function (dialog) {
-					dialog.response = false;
-
-					return dialog;
+				before(function () {
+					return browser.OLSKConfirm(function () {
+						return browser.pressButton(KVCWriteDetailToolbarConnectButton);
+					}, function (dialog) {
+						dialog.response = false;
+						return dialog;
+					});
 				});
 
 				it('does nothing', function () {

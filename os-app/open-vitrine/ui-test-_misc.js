@@ -166,10 +166,10 @@ describe('KVCVitrine_Misc', function () {
 
 	});
 
-	describe('ROCOGazette', function test_ROCOGazette () {
+	describe('Gazette embed', function test_GazetteEmbed () {
 
-		it('sets ROCOBulletinProject', function () {
-			browser.assert.attribute('.ROCOBulletinProjectField', 'value', 'Hyperdraft');
+		it('loads the external Gazette widget', function () {
+			browser.assert.attribute('script[data-gazette]', 'src', 'https://pkg.rosano.ca/gazette/master/main.js');
 		});
 
 	});

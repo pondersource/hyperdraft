@@ -897,6 +897,7 @@ const mod = {
 	},
 
 	ZDRParamDispatchWriteError (error) {
+		mod.ZDRParamDispatchError(error);
 		window.alert(mod._OLSKAppToolbarErrorText = error.message);
 	},
 

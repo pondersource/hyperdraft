@@ -78,3 +78,33 @@
 		return global[e.shift()] = e.pop();
 	});
 })();
+(function KVCZombieWebAPIs() {
+	if (process.env.OLSK_SPEC_MOCHA_INTERFACE !== 'true' || process.env.OLSK_SPEC_PLAYWRIGHT === 'true' || !global.browser) return;
+	// The external newsletter widget is outside the app's test fixture and
+	// requires browser APIs Zombie does not implement.
+	browser.pipeline.addHandler(function (browser, request) {
+		if (request.url === 'https://pkg.rosano.ca/gazette/master/main.js') {
+			return new (require('zombie/lib/fetch').Response)('', { status: 200 });
+		}
+	});
+	// Zombie's old DOM lacks APIs available in the browsers this app targets.
+	// Use Node's secure Web Crypto rather than relaxing identifier generation.
+	browser.on('active', function (window) {
+		// Each OLSKVisit starts an independent fixture; tests within that visit
+		// continue sharing their state as before.
+		window.localStorage.clear();
+		Object.defineProperty(window, 'crypto', { value: require('crypto').webcrypto, configurable: true });
+		if (!window.Element.prototype.insertAdjacentElement) {
+			window.Element.prototype.insertAdjacentElement = function (position, element) {
+				switch (position.toLowerCase()) {
+					case 'beforebegin': this.parentNode.insertBefore(element, this); break;
+					case 'afterbegin': this.insertBefore(element, this.firstChild); break;
+					case 'beforeend': this.appendChild(element); break;
+					case 'afterend': this.parentNode.insertBefore(element, this.nextSibling); break;
+					default: throw new Error('Invalid insertion position');
+				}
+				return element;
+			};
+		}
+	});
+})();

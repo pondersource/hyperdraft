@@ -157,8 +157,8 @@ describe('KVCVitrine_Access', function () {
 		browser.assert.elements(KVCVitrineVideo2, 1);
 	});
 
-	it('shows ROCOGazette', function () {
-		browser.assert.elements('.ROCOGazette', 1);
+	it('includes the Gazette embed', function () {
+		browser.assert.elements('script[data-gazette]', 1);
 	});
 
 	it('shows OLSKEdit', function () {
