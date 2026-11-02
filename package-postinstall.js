@@ -5,6 +5,11 @@ if (!require('fs').existsSync('.env')) {
 
 (function OLSKPostinstallHotfix() {
 	Object.entries(Object.assign(require('OLSKHotfix').OLSKHotfixPatches(process.env.NODE_ENV), {
+		'./node_modules/OLSKCatalog/main.svelte': {
+			// Flush queued filtering before an explicit filter reset, so the
+			// delayed callback cannot deselect a newly created note.
+			'OLSKCatalogFilterWithNoThrottle (inputData) {\n\t\tmod.ControlFilterWithNoThrottle': 'OLSKCatalogFilterWithNoThrottle (inputData) {\n\t\tif (mod._ValueFilterThrottle) OLSKThrottle.OLSKThrottleSkip(mod._ValueFilterThrottle);\n\t\tmod.ControlFilterWithNoThrottle',
+		},
 		'./node_modules/OLSKAppToolbar/node_modules/OLSKReloadButton/main.svelte': {
 			"from '../OLSKUIAssets/_OLSKSharedReload.svg'": "from '../../../OLSKUIAssets/_OLSKSharedReload.svg'",
 		},
