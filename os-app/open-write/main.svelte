@@ -10,6 +10,8 @@ import OLSKObject from 'OLSKObject';
 import OLSKServiceWorker from 'OLSKServiceWorker';
 import KVCWriteLogic from './ui-logic.js';
 import RemoteStorage from 'remotestoragejs';
+import { storageApiKeys } from '../_shared/storage-providers.js';
+import { configureProviderRedirects } from '../_shared/provider-redirects.js';
 import KVCTemplate from '../_shared/KVCTemplate/main.js';
 import OLSKString from 'OLSKString';
 import OLSKLanguageSwitcher from 'OLSKLanguageSwitcher';
@@ -119,7 +121,7 @@ const mod = {
 			ParamSpecUI: OLSK_SPEC_UI(),
 		}));
 
-		if (mod._ValueCloudIdentity) {
+		if (mod._ValueCloudIdentity && mod._ValueZDRWrap.ZDRStorageClient().backend !== 'googledrive') {
 			let count = 0;
 			outputData.push({
 				LCHRecipeSignature: 'KVCWriteLauncherItemConfigureCustomDomain',
@@ -497,6 +499,11 @@ const mod = {
 	},
 	
 	async ControlNotePublish (inputData) {
+		if (mod._ValueZDRWrap.ZDRStorageClient().backend === 'googledrive') {
+			window.alert('Google Drive supports syncing notes, but not publishing websites. Connect remoteStorage to publish.');
+			return;
+		}
+
 		if (OLSK_SPEC_UI()) {
 			window.TestControlNotePublishCount.innerHTML = parseInt(window.TestControlNotePublishCount.innerHTML) + 1;
 		}
@@ -740,6 +747,7 @@ const mod = {
 	},
 
 	async KVCWriteDetailPublicURLFor (inputData) {
+		if (mod._ValueZDRWrap.ZDRStorageClient().backend === 'googledrive') return null;
 		if (mod.DataSetting('KVCSettingCustomDomainBaseURL')) {
 			return KVCWriteLogic.KVCWriteCustomDomainBaseURLFunction(await mod._ValueZDRWrap.Public.ZDRStoragePermalink(KVCNote.KVCNotePublicRootPagePath()), KVCNote.KVCNotePublicRootPagePath())(await mod._ValueZDRWrap.Public.ZDRStoragePermalink(KVCNote.KVCNotePublicPath(inputData, mod.DataSetting('KVCSettingPublicRootPageID') === inputData.KVCNoteID)), mod.DataSetting('KVCSettingCustomDomainBaseURL'));
 		}
@@ -877,6 +885,14 @@ const mod = {
 	async OLSKCloudFormDispatchSubmit (inputData) {
 		const protocol = zerodatawrap.ZDRPreferenceProtocolConnect(inputData);
 		(zerodatawrap.ZDRPreferenceProtocolMigrate() ? await mod.DataStorageClient(protocol) : mod._ValueZDRWrap).ZDRCloudConnect(inputData);
+	},
+
+	async ConnectStorageProvider (provider) {
+		try {
+			await mod._ValueZDRWrap.ZDRStorageClient()[provider].connect();
+		} catch (error) {
+			mod.ZDRParamDispatchError(error);
+		}
 	},
 
 	OLSKCloudDispatchRenew () {
@@ -1026,6 +1042,8 @@ const mod = {
 
 	async SetupStorageClient() {
 		mod._ValueZDRWrap = await mod.DataStorageClient(zerodatawrap.ZDRPreferenceProtocol(zerodatawrap.ZDRProtocolRemoteStorage()));
+		mod._ValueZDRWrap.ZDRStorageClient().setApiKeys(storageApiKeys);
+		configureProviderRedirects(mod._ValueZDRWrap.ZDRStorageClient(), '/write/');
 	},
 
 	async SetupCatalog() {
@@ -1194,6 +1212,13 @@ import OLSKUIAssets from 'OLSKUIAssets';
 			</div>
 
 			<div class="OLSKToolbarElementGroup">
+				{#if !mod._ValueCloudIdentity}
+					{#each [['googledrive', 'Google Drive'], ['dropbox', 'Dropbox']] as [provider, label]}
+						{#if storageApiKeys[provider]}
+							<button class="OLSKDecorButton" on:click={ () => mod.ConnectStorageProvider(provider) }>Connect {label}</button>
+						{/if}
+					{/each}
+				{/if}
 				<OLSKCloud
 					OLSKCloudErrorText={ mod._ValueCloudErrorText }
 					OLSKCloudDispatchRenew={ mod.OLSKCloudDispatchRenew }
