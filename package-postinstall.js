@@ -5,6 +5,10 @@ if (!require('fs').existsSync('.env')) {
 
 (function OLSKPostinstallHotfix() {
 	Object.entries(Object.assign(require('OLSKHotfix').OLSKHotfixPatches(process.env.NODE_ENV), {
+		'./node_modules/zerodatawrap/main.js': {
+			// rs.js's Dropbox adapter returns already-parsed JSON from getFile.
+			'const parsed = JSON.parse(result);': "const parsed = typeof result === 'string' ? JSON.parse(result) : result;",
+		},
 		'./node_modules/OLSKCatalog/main.svelte': {
 			// Flush queued filtering before an explicit filter reset, so the
 			// delayed callback cannot deselect a newly created note.
