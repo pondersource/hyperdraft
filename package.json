@@ -42,7 +42,7 @@
     "OLSKWebView": "github:olsk/OLSKWebView",
     "zerodatawrap": "github:0dataapp/0datawrap",
     "svelte": "^3.59.2",
-    "remotestoragejs": "file:vendor/remotestoragejs-2.0.0-beta.10-pondersource.3.tgz",
+    "remotestoragejs": "file:vendor/remotestoragejs-2.0.0-beta.10-pondersource.4.tgz",
     "ulid": "^2.4.0"
   },
   "devDependencies": {
