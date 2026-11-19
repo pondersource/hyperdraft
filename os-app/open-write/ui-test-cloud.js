@@ -115,6 +115,19 @@ describe('KVCWrite_Cloud', function () {
 		
 		});
 
+		context('expired authorization', function () {
+			before(async function () {
+				browser.evaluate(`Main.$$.ctx[0].ZDRParamDispatchError({name: 'Unauthorized', message: 'App authorization expired or revoked.'})`);
+				await browser.wait();
+			});
+
+			it('offers renewal without disconnecting or clearing notes', function () {
+				browser.assert.text('.OLSKCloudError', 'App authorization expired or revoked.');
+				browser.assert.elements('.OLSKCloudRenewButton', 1);
+				browser.assert.text('.OLSKCloudStatusIdentity', 'ZDR_FAKE_CLOUD_IDENTITY');
+			});
+		});
+
 		context('write error', function () {
 
 			before(function () {

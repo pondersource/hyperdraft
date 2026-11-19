@@ -11,6 +11,11 @@ if (!require('fs').existsSync('.env')) {
 			// rs.js's Dropbox adapter returns already-parsed JSON from getFile.
 			'const parsed = JSON.parse(result);': "const parsed = typeof result === 'string' ? JSON.parse(result) : result;",
 		},
+		'./node_modules/OLSKCloud/main.svelte': {
+			// rs.js exposes authorization expiry through the error name.
+			"export let OLSKCloudErrorText = null;\nexport let OLSKCloudDispatchRenew;": "export let OLSKCloudErrorText = null;\nexport let OLSKCloudCanRenew = false;\nexport let OLSKCloudDispatchRenew;",
+			"{#if OLSKCloudErrorText.match('Unauthorized') }": "{#if OLSKCloudCanRenew || OLSKCloudErrorText.match('Unauthorized') }",
+		},
 		'./node_modules/OLSKCatalog/main.svelte': {
 			// Flush queued filtering before an explicit filter reset, so the
 			// delayed callback cannot deselect a newly created note.

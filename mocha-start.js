@@ -94,6 +94,8 @@
 		// continue sharing their state as before.
 		window.localStorage.clear();
 		Object.defineProperty(window, 'crypto', { value: require('crypto').webcrypto, configurable: true });
+		window.TextEncoder = require('util').TextEncoder;
+		window.TextDecoder = require('util').TextDecoder;
 		if (!window.Element.prototype.insertAdjacentElement) {
 			window.Element.prototype.insertAdjacentElement = function (position, element) {
 				switch (position.toLowerCase()) {

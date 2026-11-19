@@ -913,6 +913,7 @@ const mod = {
 
 	ZDRParamDispatchError (error) {
 		mod._ValueCloudErrorText = error.message;
+		mod._ValueCloudCanRenew = error.name === 'Unauthorized';
 	},
 
 	ZDRParamDispatchWriteError (error) {
@@ -1224,6 +1225,7 @@ import OLSKUIAssets from 'OLSKUIAssets';
 				{/if}
 				<OLSKCloud
 					OLSKCloudErrorText={ mod._ValueCloudErrorText }
+					OLSKCloudCanRenew={ mod._ValueCloudCanRenew }
 					OLSKCloudDispatchRenew={ mod.OLSKCloudDispatchRenew }
 					OLSKCloudFormDispatchSubmit={ mod.OLSKCloudFormDispatchSubmit }
 					OLSKCloudStatusIdentityText={ mod._ValueCloudIdentity }
