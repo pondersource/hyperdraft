@@ -16,6 +16,7 @@ const configurations = require('OLSKRollupScaffold').OLSKRollupScaffoldScanStart
 
 module.exports = configurations.map(function (config) {
 	return Object.assign({}, config, {
+		plugins: [require('rollup-plugin-commonjs')({ include: 'node_modules/@pondersource/rs-apps/**', extensions: ['.cjs'] })].concat(config.plugins),
 		onwarn (warning, handler) {
 			if (warning.code === 'UNRESOLVED_IMPORT') throw new Error(warning.message);
 			config.onwarn(warning, handler);

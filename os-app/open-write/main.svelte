@@ -10,6 +10,8 @@ import OLSKObject from 'OLSKObject';
 import OLSKServiceWorker from 'OLSKServiceWorker';
 import KVCWriteLogic from './ui-logic.js';
 import RemoteStorage from 'remotestoragejs';
+import storageSupport from '@pondersource/rs-apps';
+const { attachSolid } = storageSupport;
 import { storageApiKeys } from '../_shared/storage-providers.js';
 import { configureProviderRedirects } from '../_shared/provider-redirects.js';
 import KVCTemplate from '../_shared/KVCTemplate/main.js';
@@ -1044,6 +1046,7 @@ const mod = {
 		mod._ValueZDRWrap = await mod.DataStorageClient(zerodatawrap.ZDRPreferenceProtocol(zerodatawrap.ZDRProtocolRemoteStorage()));
 		mod._ValueZDRWrap.ZDRStorageClient().setApiKeys(storageApiKeys);
 		configureProviderRedirects(mod._ValueZDRWrap.ZDRStorageClient(), '/write/');
+		attachSolid(mod._ValueZDRWrap.ZDRStorageClient());
 	},
 
 	async SetupCatalog() {

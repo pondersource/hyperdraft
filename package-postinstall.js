@@ -6,6 +6,8 @@ if (!require('fs').existsSync('.env')) {
 (function OLSKPostinstallHotfix() {
 	Object.entries(Object.assign(require('OLSKHotfix').OLSKHotfixPatches(process.env.NODE_ENV), {
 		'./node_modules/zerodatawrap/main.js': {
+			// Solid-enabled rs.js inherits its static error classes.
+			"Object.keys(inputData).includes('Unauthorized')": "typeof inputData.Unauthorized === 'function'",
 			// rs.js's Dropbox adapter returns already-parsed JSON from getFile.
 			'const parsed = JSON.parse(result);': "const parsed = typeof result === 'string' ? JSON.parse(result) : result;",
 		},

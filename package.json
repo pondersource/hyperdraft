@@ -42,8 +42,9 @@
     "OLSKWebView": "github:olsk/OLSKWebView",
     "zerodatawrap": "github:0dataapp/0datawrap",
     "svelte": "^3.59.2",
-    "remotestoragejs": "file:vendor/remotestoragejs-2.0.0-beta.10-pondersource.4.tgz",
-    "ulid": "^2.4.0"
+    "remotestoragejs": "file:vendor/remotestoragejs-2.0.0-beta.10-pondersource.6.tgz",
+    "ulid": "^2.4.0",
+    "@pondersource/rs-apps": "file:vendor/pondersource-rs-apps-1.0.0.tgz"
   },
   "devDependencies": {
     "OLSKPithToolchain": "olsk/OLSKPithToolchain",
