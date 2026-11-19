@@ -10,8 +10,7 @@ import OLSKObject from 'OLSKObject';
 import OLSKServiceWorker from 'OLSKServiceWorker';
 import KVCWriteLogic from './ui-logic.js';
 import RemoteStorage from 'remotestoragejs';
-import storageSupport from '@pondersource/rs-apps';
-const { attachSolid } = storageSupport;
+import Widget from 'remotestorage-widget';
 import { storageApiKeys } from '../_shared/storage-providers.js';
 import { configureProviderRedirects } from '../_shared/provider-redirects.js';
 import KVCTemplate from '../_shared/KVCTemplate/main.js';
@@ -1047,7 +1046,17 @@ const mod = {
 		mod._ValueZDRWrap = await mod.DataStorageClient(zerodatawrap.ZDRPreferenceProtocol(zerodatawrap.ZDRProtocolRemoteStorage()));
 		mod._ValueZDRWrap.ZDRStorageClient().setApiKeys(storageApiKeys);
 		configureProviderRedirects(mod._ValueZDRWrap.ZDRStorageClient(), '/write/');
-		attachSolid(mod._ValueZDRWrap.ZDRStorageClient());
+		mod._ValueStorageWidget = new Widget(mod._ValueZDRWrap.ZDRStorageClient(), {
+			solidProviders: { allowAnyProvider: true }, skipInitial: true, leaveOpen: true,
+		});
+		mod._ValueStorageWidget.attach('hyperdraft-storage-widget');
+		mod._ValueZDRWrap.ZDRStorageClient().on('pod-not-selected', () => {
+			mod._ValueCloudToolbarHidden = false;
+		});
+		mod._ValueZDRWrap.ZDRStorageClient().on('disconnected', () => {
+			mod._ValueCloudIdentity = null;
+			zerodatawrap.ZDRPreferenceProtocolClear();
+		});
 	},
 
 	async SetupCatalog() {
@@ -1105,7 +1114,6 @@ import KVCWriteTemplate from '../sub-template/main.svelte';
 import OLSKAppToolbar from 'OLSKAppToolbar';
 import OLSKServiceWorkerView from '../../node_modules/OLSKServiceWorker/main.svelte';
 import OLSKInstall from 'OLSKInstall';
-import OLSKCloud from 'OLSKCloud';
 import OLSKWebView from 'OLSKWebView';
 import OLSKModalView from 'OLSKModalView';
 import OLSKApropos from 'OLSKApropos';
@@ -1210,33 +1218,9 @@ import OLSKUIAssets from 'OLSKUIAssets';
 
 <footer class="KVCWriteViewportFooter OLSKMobileViewFooter">
 
-	{#if !mod._ValueCloudToolbarHidden }
-		<div class="KVCWriteCloudToolbar OLSKToolbar OLSKToolbarJustify OLSKCommonEdgeTop">
-			<div class="OLSKToolbarElementGroup">
-			</div>
-
-			<div class="OLSKToolbarElementGroup">
-				{#if !mod._ValueCloudIdentity}
-					{#each [['googledrive', 'Google Drive'], ['dropbox', 'Dropbox']] as [provider, label]}
-						{#if storageApiKeys[provider]}
-							<button class="OLSKDecorButton" on:click={ () => mod.ConnectStorageProvider(provider) }>Connect {label}</button>
-						{/if}
-					{/each}
-				{/if}
-				<OLSKCloud
-					OLSKCloudErrorText={ mod._ValueCloudErrorText }
-					OLSKCloudCanRenew={ mod._ValueCloudCanRenew }
-					OLSKCloudDispatchRenew={ mod.OLSKCloudDispatchRenew }
-					OLSKCloudFormDispatchSubmit={ mod.OLSKCloudFormDispatchSubmit }
-					OLSKCloudStatusIdentityText={ mod._ValueCloudIdentity }
-					OLSKCloudStatusIsSyncing={ mod._ValueIsSyncing }
-					OLSKCloudStatusDispatchSyncStart={ mod.OLSKCloudStatusDispatchSyncStart }
-					OLSKCloudStatusDispatchSyncStop={ mod.OLSKCloudStatusDispatchSyncStop }
-					OLSKCloudStatusDispatchDisconnect={ mod.OLSKCloudStatusDispatchDisconnect }
-					/>
-			</div>
-		</div>
-	{/if}
+	<div class="KVCWriteCloudToolbar OLSKToolbar OLSKToolbarJustify OLSKCommonEdgeTop" hidden={mod._ValueCloudToolbarHidden}>
+		<div id="hyperdraft-storage-widget"></div>
+	</div>
 
 	<OLSKAppToolbar
 		OLSKAppToolbarDispatchApropos={ mod.OLSKAppToolbarDispatchApropos }

@@ -50,114 +50,49 @@ describe('KVCWrite_Cloud', function () {
 	
 	});
 
-	describe('OLSKCloud', function test_OLSKCloud() {
-
-		before(function () {
-			return browser.OLSKVisit(kDefaultRoute);
+	describe('remoteStorage widget', function () {
+		before(async function () {
+			await browser.OLSKVisit(kDefaultRoute);
+			await browser.pressButton('.OLSKAppToolbarCloudButton');
 		});
 
-		before(function () {
-			return browser.OLSKLauncherRun('ZDRLauncherItemFakeDispatchConnected');
+		it('offers all four backends in one widget', function () {
+			for (const provider of ['rs', 'dropbox', 'googledrive', 'solid']) {
+				browser.assert.elements('.rs-choose-' + provider, 1);
+			}
+			browser.assert.elements('[data-pondersource-solid]', 0);
 		});
 
-		before(function () {
-			return browser.OLSKLauncherRun('ZDRLauncherItemFakeDispatchOnline');
+		it('opens the Solid identity provider form', async function () {
+			await browser.pressButton('.rs-choose-solid');
+			browser.assert.elements('.rs-state-solid', 1);
+			browser.assert.elements('input[name=rs-provider-address]', 1);
 		});
 
-		before(function () {
-			return browser.pressButton('.OLSKAppToolbarCloudButton');
+		it('shows connected identity and sync status from rs.js', async function () {
+			this.timeout(5000);
+			browser.evaluate(`(() => {
+				const rs = Main.$$.ctx[0]._ValueZDRWrap.ZDRStorageClient();
+				rs.remote.userAddress = 'widget-test@example.test';
+				rs._emit('connected');
+				rs._emit('sync-done', { completed: true });
+			})()`);
+			await browser.wait();
+			browser.assert.text('.rs-user', 'widget-test@example.test');
+			browser.assert.text('.rs-box-connected .rs-sub-headline', 'Synced');
 		});
 
-		it('sets OLSKCloudStatusIdentityText', function () {
-			browser.assert.text('.OLSKCloudStatusIdentity', 'ZDR_FAKE_CLOUD_IDENTITY');
+		it('offers renewal for expired authorization without clearing notes', async function () {
+			browser.evaluate(`Main.$$.ctx[0]._ValueZDRWrap.ZDRStorageClient()._emit('error', {name: 'Unauthorized', message: 'App authorization expired or revoked.'})`);
+			await browser.wait();
+			browser.assert.elements('.rs-state-error', 1);
+			browser.assert.elements('.rs-reconnect:not(.rs-hidden)', 1);
 		});
 
-		context('sync start', function () {
-
-			before(function () {
-				browser.assert.elements('.OLSKCloudStatusSyncStartButton', 1);
-				browser.assert.elements('.OLSKCloudStatusSyncStopButton', 0);
-			});
-
-			before(function () {
-				return browser.OLSKLauncherRun('ZDRLauncherItemFakeDispatchSyncDidStart');
-			});
-
-			it('sets OLSKCloudStatusIsSyncing', function () {
-				browser.assert.elements('.OLSKCloudStatusSyncStartButton', 0);
-				browser.assert.elements('.OLSKCloudStatusSyncStopButton', 1);
-			});
-		
+		it('disconnects through the widget without a native confirmation dialog', async function () {
+			await browser.pressButton('.rs-box-error .rs-disconnect');
+			await browser.wait();
+			browser.assert.elements('.rs-state-choose', 1);
 		});
-
-		context('sync stop', function () {
-
-			before(function () {
-				return browser.OLSKLauncherRun('ZDRLauncherItemFakeDispatchSyncDidStop');
-			});
-
-			it('sets OLSKCloudStatusIsSyncing', function () {
-				browser.assert.elements('.OLSKCloudStatusSyncStartButton', 1);
-				browser.assert.elements('.OLSKCloudStatusSyncStopButton', 0);
-			});
-		
-		});
-
-		context('error', function () {
-
-			before(function () {
-				return browser.OLSKLauncherRun('ZDRLauncherItemFakeDispatchError');
-			});
-
-			it('sets OLSKCloudErrorText', function () {
-				browser.assert.text('.OLSKCloudError', 'ZDR_FAKE_CLOUD_ERROR');
-			});
-		
-		});
-
-		context('expired authorization', function () {
-			before(async function () {
-				browser.evaluate(`Main.$$.ctx[0].ZDRParamDispatchError({name: 'Unauthorized', message: 'App authorization expired or revoked.'})`);
-				await browser.wait();
-			});
-
-			it('offers renewal without disconnecting or clearing notes', function () {
-				browser.assert.text('.OLSKCloudError', 'App authorization expired or revoked.');
-				browser.assert.elements('.OLSKCloudRenewButton', 1);
-				browser.assert.text('.OLSKCloudStatusIdentity', 'ZDR_FAKE_CLOUD_IDENTITY');
-			});
-		});
-
-		context('write error', function () {
-
-			before(function () {
-				return browser.OLSKLauncherRun('ZDRLauncherItemFakeDispatchWriteError');
-			});
-
-			it('sets OLSKCloudErrorText', function () {
-				browser.assert.text('.OLSKCloudError', 'ZDR_FAKE_WRITE_ERROR');
-			});
-		
-		});
-
-		context('disconnect', function () {
-
-			before(function () {
-				browser.assert.elements('.OLSKCloudForm', 0);
-				browser.assert.elements('.OLSKCloudStatus', 1);
-			});
-
-			before(function () {
-				return browser.pressButton('.OLSKCloudStatusDisconnectButton');
-			});
-
-			it('sets OLSKCloudErrorText', function () {
-				browser.assert.elements('.OLSKCloudForm', 1);
-				browser.assert.elements('.OLSKCloudStatus', 0);
-			});
-		
-		});
-	
 	});
-
 });

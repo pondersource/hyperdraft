@@ -52,7 +52,7 @@ describe('KVCWrite_Access', function () {
 	});
 
 	it('hides KVCWriteCloudToolbar', function () {
-		browser.assert.elements(KVCWriteCloudToolbar, 0);
+		browser.assert.attribute(KVCWriteCloudToolbar, 'hidden', '');
 	});
 
 	it('shows OLSKAppToolbar', function () {
@@ -181,8 +181,8 @@ describe('KVCWrite_Access', function () {
 			browser.assert.elements(KVCWriteCloudToolbar, 1);
 		});
 
-		it('shows OLSKCloud', function () {
-			browser.assert.elements('.OLSKCloud', 1);
+		it('shows remoteStorage widget', function () {
+			browser.assert.elements('.rs-widget', 1);
 		});
 	
 	});
