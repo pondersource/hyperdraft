@@ -3,6 +3,8 @@ const kDefaultRoute = require('./controller.js').OLSKControllerRoutes().shift();
 describe('KVCVitrine_Misc', function () {
 
 	before(function () {
+		// Allow the cold page navigation to finish on a shared CI runner.
+		this.timeout(5000);
 		return browser.visit(kDefaultRoute.OLSKRoutePath);
 	});
 
