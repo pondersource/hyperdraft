@@ -19,6 +19,7 @@ jobs:
       run: OLSK_ROLLUP_SCAFFOLD_CI=1 npm run build
     - name: Test logic
       run: npm run test -- --ci
+    - run: node --test acceptance/atomic-view.test.cjs
     - name: Test interface
       run: npx start-server-and-test start 3000 'olsk-spec-ui --ci'
       env:
