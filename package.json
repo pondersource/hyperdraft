@@ -45,7 +45,7 @@
     "remotestoragejs": "file:vendor/remotestoragejs-2.0.0-beta.10-pondersource.9-preview.9.tgz",
     "ulid": "^2.4.0",
     "@pondersource/rs-apps": "file:vendor/pondersource-rs-apps-1.0.0.tgz",
-    "remotestorage-widget": "file:vendor/remotestorage-widget-1.8.2-pondersource.5-preview.10.tgz"
+    "remotestorage-widget": "file:vendor/remotestorage-widget-1.8.2-pondersource.6-preview.11.tgz"
   },
   "devDependencies": {
     "OLSKPithToolchain": "olsk/OLSKPithToolchain",
