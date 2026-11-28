@@ -1043,6 +1043,7 @@ const mod = {
 	},
 
 	async SetupStorageClient() {
+		RemoteStorage.Atomic.loadSDK = () => import(/* @vite-ignore */ new URL('/atomic-sdk/index.mjs', window.location.origin).href);
 		mod._ValueZDRWrap = await mod.DataStorageClient(zerodatawrap.ZDRPreferenceProtocol(zerodatawrap.ZDRProtocolRemoteStorage()));
 		mod._ValueZDRWrap.ZDRStorageClient().setApiKeys(storageApiKeys);
 		configureProviderRedirects(mod._ValueZDRWrap.ZDRStorageClient(), '/write/');
